@@ -1,1 +1,1 @@
-include ':app', ':inputmethodcommon'
+include ':app'

@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 28
     defaultConfig {
-        applicationId "com.android.inputmethod"
-        minSdkVersion 15
-        targetSdkVersion 25
+        applicationId "com.eggonlea.ime"
+        minSdkVersion 26
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -39,16 +39,6 @@ android {
         noCompress 'dict'
     }
     productFlavors {
-    }
-    sourceSets {
-        main {
-            res.srcDirs = ['src/main/java/res']
-            java.srcDirs =
-                    ['src/main/inputmethodcommon/java',
-                     'src/main/common/src',
-                     'src/main/java/src',
-                     'src/main/java-overridable/src']
-        }
     }
 }
 
