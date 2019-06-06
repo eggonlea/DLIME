@@ -17,12 +17,16 @@
 package com.eggonlea.ime.latin;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
-
 import com.eggonlea.ime.R;
 import com.eggonlea.ime.accessibility.AccessibilityUtils;
 import com.eggonlea.ime.keyboard.MainKeyboardView;
@@ -30,6 +34,7 @@ import com.eggonlea.ime.latin.suggestions.MoreSuggestionsView;
 import com.eggonlea.ime.latin.suggestions.SuggestionStripView;
 
 public final class InputView extends FrameLayout {
+    private static final String TAG = "InputView";
     private final Rect mInputViewRect = new Rect();
     private MainKeyboardView mMainKeyboardView;
     private KeyboardTopPaddingForwarder mKeyboardTopPaddingForwarder;
@@ -38,13 +43,16 @@ public final class InputView extends FrameLayout {
 
     public InputView(final Context context, final AttributeSet attrs) {
         super(context, attrs, 0);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager
+                .LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        setLayoutParams(params);
     }
 
     @Override
     protected void onFinishInflate() {
         final SuggestionStripView suggestionStripView =
-                (SuggestionStripView)findViewById(R.id.suggestion_strip_view);
-        mMainKeyboardView = (MainKeyboardView)findViewById(R.id.keyboard_view);
+                (SuggestionStripView) findViewById(R.id.suggestion_strip_view);
+        mMainKeyboardView = (MainKeyboardView) findViewById(R.id.keyboard_view);
         mKeyboardTopPaddingForwarder = new KeyboardTopPaddingForwarder(
                 mMainKeyboardView, suggestionStripView);
         mMoreSuggestionsViewCanceler = new MoreSuggestionsViewCanceler(
@@ -71,8 +79,8 @@ public final class InputView extends FrameLayout {
         final Rect rect = mInputViewRect;
         getGlobalVisibleRect(rect);
         final int index = me.getActionIndex();
-        final int x = (int)me.getX(index) + rect.left;
-        final int y = (int)me.getY(index) + rect.top;
+        final int x = (int) me.getX(index) + rect.left;
+        final int y = (int) me.getY(index) + rect.top;
 
         // The touch events that hit the top padding of keyboard should be forwarded to
         // {@link SuggestionStripView}.
@@ -101,9 +109,32 @@ public final class InputView extends FrameLayout {
         final Rect rect = mInputViewRect;
         getGlobalVisibleRect(rect);
         final int index = me.getActionIndex();
-        final int x = (int)me.getX(index) + rect.left;
-        final int y = (int)me.getY(index) + rect.top;
+        final int x = (int) me.getX(index) + rect.left;
+        final int y = (int) me.getY(index) + rect.top;
         return mActiveForwarder.onTouchEvent(x, y, me);
+    }
+
+    @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        final Resources res = getContext().getResources();
+        final DisplayMetrics dm = res.getDisplayMetrics();
+        if (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                && dm.heightPixels * 2 < dm.widthPixels) {
+            setMeasuredDimension(dm.widthPixels / 2, dm.heightPixels);
+        }
+    }
+
+    @Override
+    protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
+        final Resources res = getContext().getResources();
+        final DisplayMetrics dm = res.getDisplayMetrics();
+        if (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                && dm.heightPixels * 2 < dm.widthPixels) {
+            Log.d(TAG, "w=" + w + " h=" + h + " oldw=" + oldw + " oldh=" + oldh);
+            Log.d(TAG, "dm.w=" + dm.widthPixels + " dm.h=" + dm.heightPixels);
+            setX(dm.widthPixels - w);
+            setY(0);
+        }
     }
 
     /**
@@ -112,10 +143,10 @@ public final class InputView extends FrameLayout {
      *
      * @param <SenderView> a {@link View} that may send a {@link MotionEvent} to <ReceiverView>.
      * @param <ReceiverView> a {@link View} that receives forwarded {@link MotionEvent} from
-     *     <SenderView>.
+     * <SenderView>.
      */
     private static abstract class
-            MotionEventForwarder<SenderView extends View, ReceiverView extends View> {
+    MotionEventForwarder<SenderView extends View, ReceiverView extends View> {
         protected final SenderView mSenderView;
         protected final ReceiverView mReceiverView;
 
@@ -142,9 +173,11 @@ public final class InputView extends FrameLayout {
 
         /**
          * Callback when a {@link MotionEvent} is forwarded.
+         *
          * @param me the motion event to be forwarded.
          */
-        protected void onForwardingEvent(final MotionEvent me) {}
+        protected void onForwardingEvent(final MotionEvent me) {
+        }
 
         // Returns true if a {@link MotionEvent} is needed to be forwarded to
         // <code>ReceiverView</code>. Otherwise returns false.
@@ -184,8 +217,8 @@ public final class InputView extends FrameLayout {
     }
 
     /**
-     * This class forwards {@link MotionEvent}s happened in the top padding of
-     * {@link MainKeyboardView} to {@link SuggestionStripView}.
+     * This class forwards {@link MotionEvent}s happened in the top padding of {@link
+     * MainKeyboardView} to {@link SuggestionStripView}.
      */
     private static class KeyboardTopPaddingForwarder
             extends MotionEventForwarder<MainKeyboardView, SuggestionStripView> {
@@ -210,7 +243,7 @@ public final class InputView extends FrameLayout {
             // Because the visibility of {@link MainKeyboardView} is controlled by its parent
             // view in {@link KeyboardSwitcher#setMainKeyboardFrame()}, we should check the
             // visibility of the parent view.
-            final View mainKeyboardFrame = (View)mSenderView.getParent();
+            final View mainKeyboardFrame = (View) mSenderView.getParent();
             return mainKeyboardFrame.getVisibility() == View.VISIBLE && isInKeyboardTopPadding(y);
         }
 
@@ -226,10 +259,10 @@ public final class InputView extends FrameLayout {
     }
 
     /**
-     * This class forwards {@link MotionEvent}s happened in the {@link MainKeyboardView} to
-     * {@link SuggestionStripView} when the {@link MoreSuggestionsView} is showing.
-     * {@link SuggestionStripView} dismisses {@link MoreSuggestionsView} when it receives any event
-     * outside of it.
+     * This class forwards {@link MotionEvent}s happened in the {@link MainKeyboardView} to {@link
+     * SuggestionStripView} when the {@link MoreSuggestionsView} is showing. {@link
+     * SuggestionStripView} dismisses {@link MoreSuggestionsView} when it receives any event outside
+     * of it.
      */
     private static class MoreSuggestionsViewCanceler
             extends MotionEventForwarder<MainKeyboardView, SuggestionStripView> {

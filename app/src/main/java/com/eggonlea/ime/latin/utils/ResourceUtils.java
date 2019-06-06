@@ -16,6 +16,7 @@
 
 package com.eggonlea.ime.latin.utils;
 
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -184,6 +185,10 @@ public final class ResourceUtils {
 
     public static int getDefaultKeyboardWidth(final Resources res) {
         final DisplayMetrics dm = res.getDisplayMetrics();
+        if (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                && dm.heightPixels * 2 < dm.widthPixels) {
+            return dm.widthPixels / 2;
+        }
         return dm.widthPixels;
     }
 
@@ -215,6 +220,11 @@ public final class ResourceUtils {
             // width.
             minKeyboardHeight = -res.getFraction(
                     R.fraction.config_min_keyboard_height, dm.widthPixels, dm.widthPixels);
+        }
+        if (res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                && dm.heightPixels * 2 < dm.widthPixels) {
+            final int height = res.getDimensionPixelSize(R.dimen.config_suggestions_strip_height);
+            return dm.heightPixels  - height;
         }
         // Keyboard height will not exceed maxKeyboardHeight and will not be less than
         // minKeyboardHeight.

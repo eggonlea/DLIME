@@ -34,10 +34,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
+import com.eggonlea.ime.Constants;
+import com.eggonlea.ime.CoordinateUtils;
+import com.eggonlea.ime.ExternallyReferenced;
+import com.eggonlea.ime.R;
 import com.eggonlea.ime.accessibility.AccessibilityUtils;
 import com.eggonlea.ime.accessibility.MainKeyboardAccessibilityDelegate;
-import com.eggonlea.ime.ExternallyReferenced;
 import com.eggonlea.ime.keyboard.internal.DrawingPreviewPlacerView;
 import com.eggonlea.ime.keyboard.internal.DrawingProxy;
 import com.eggonlea.ime.keyboard.internal.GestureFloatingTextDrawingPreview;
@@ -50,17 +52,12 @@ import com.eggonlea.ime.keyboard.internal.MoreKeySpec;
 import com.eggonlea.ime.keyboard.internal.NonDistinctMultitouchHelper;
 import com.eggonlea.ime.keyboard.internal.SlidingKeyInputDrawingPreview;
 import com.eggonlea.ime.keyboard.internal.TimerHandler;
-import com.eggonlea.ime.R;
 import com.eggonlea.ime.latin.RichInputMethodSubtype;
 import com.eggonlea.ime.latin.SuggestedWords;
-import com.eggonlea.ime.Constants;
-import com.eggonlea.ime.CoordinateUtils;
 import com.eggonlea.ime.latin.settings.DebugSettings;
 import com.eggonlea.ime.latin.utils.LanguageOnSpacebarUtils;
 import com.eggonlea.ime.latin.utils.TypefaceUtils;
-
 import java.util.WeakHashMap;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
